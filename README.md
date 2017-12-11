@@ -14,10 +14,15 @@ Enter a simple description to enable the serial port of the rpi.
 #### Install pyMultiWii libary
 Download the libary pyMultiWii from www.github.com/alduxvm/pyMultiWii on the Raspberry Pi.
 Open the terminal and navigate to the download folder.
+
 To install the libary for python 2 enter:
+
 `sudo pip install .`
+
 To install the libary for python 3 enter:
+
 `sudo pip3 install .`
+
 Reboot the Raspberry Pi.
 
 #### Install & start the server
