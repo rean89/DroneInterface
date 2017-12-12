@@ -24,7 +24,7 @@ class DroneServer:
         self.__maxClients = 1
 
         # IP address of the server.
-        self.__ipAddress = self.getIP()
+        self.__ipAddress = self._getIP()
 
         # Port of the socket connection.
         self.__port = 8000
