@@ -28,7 +28,7 @@ class DroneConnection:
                 self.sock.connect(self.server_address)
                 self.connected = True
             except Exception as e:
-                print("Exception:\n", e)
+                print("Exception: ", e)
 
 
     """
@@ -57,27 +57,12 @@ class DroneConnection:
         # Connected to the drone?
         if self.connected:
             # Create the command.
-            command = "2;" + str(latitude) + ";" + str(longitude) + ";"
+            command = "1;" + str(latitude) + ";" + str(longitude)
             try:
                 # Send the command.
                 self.sock.sendall(command.encode('utf-8'))
             except Exception as e:
                 # Handle exceptions.
-                print("Exception:\n", e)
-
-
-    """
-    Send the raw values of the left & right stick.
-    """
-    def sendRawRC(self, lx, ly, rx, ry):
-        # Connected to the drone?
-        if self.isConnected:
-            # Create the data package.
-            command = "0;" + str(lx) + ";" + str(ly) + ";" + str(rx) + ";" + str(ry) + ";"
-            try:
-                # Send the command.
-                self.sock.sendall(command.encode('utf-8'))
-            except Exception as e:
                 print("Exception:\n", e)
 
 
@@ -88,7 +73,7 @@ class DroneConnection:
         # Connected to the drone?
         if self.isConnected:
             # Create the data package.
-            command = "1;" + str(throttle) + ";" + str(yaw) + ";" + str(roll) + ";" + str(pitch) + ";"
+            command = "0;" + str(throttle) + ";" + str(yaw) + ";" + str(roll) + ";" + str(pitch)
             try:
                 # Send the command.
                 self.sock.sendall(command.encode('utf-8'))
@@ -103,7 +88,7 @@ class DroneConnection:
     def requestTelemetry(self):
         if self.isConnected:
             # Creat the command to request the telemetry information.
-            command = "3;"
+            command = "2"
             try:
                 # Send the command.
                 self.sock.sendall(command.encode('utf-8'))
@@ -112,6 +97,19 @@ class DroneConnection:
                 # Print the telemetry information.
                 teleInfo = data.decode('utf-8')
                 print(teleInfo)
+            except Exception as e:
+                # Handle exceptions.
+                print("Exception:\n", e)
+
+
+    """
+    Send raw data to the server.
+    """
+    def sendData(self, rawData):
+        if self.isConnected:
+            try:
+                # Send the data.
+                self.sock.sendall(rawData.encode('utf-8'))
             except Exception as e:
                 # Handle exceptions.
                 print("Exception:\n", e)
