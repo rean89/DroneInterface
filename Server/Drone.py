@@ -10,7 +10,7 @@ except ImportError:
 
 
 class Drone:
-                            
+
     # Serial port address for older models then rpi 3b?
     __rpiOldSerialPortAddress = "/dev/ttyAMA0"
 
@@ -20,11 +20,13 @@ class Drone:
     def __init__(self):
 
         self.__debug = True
-        revisionId = self._getRpiRevision()
-        if revisionId == "a02082" or revisionId == "a22082":
+
+        revId = self._getRPiRev()
+        # Check if RPi 3b or another revision.
+        if revId == "a02082" or revId == "a22082":
             self.__board = MultiWii(self.__rpi3BSerialPortAddress)
         else:
-            self.__board = MultiWii(self.rpiOldSerialPortAddress)
+            self.__board = MultiWii(self.__rpiOldSerialPortAddress)
 
     """
     Send data to the multiwii board.
@@ -34,30 +36,36 @@ class Drone:
         reader = csv.reader(StringIO(rawData.decode('utf-8')), delimiter=";")
         for row in reader:
             try:
-                numbVal = [list(map(int, x)) for x in row]
-                cmd = numbVal[0]
-                if cmd == 0:
-                    self.__board.sendCMD(4, MultiWii.SET_RAW_RC, numbVal[1:4])
-                elif cmd == 1:
-                    self.__board.sendCMD(2, MultiWii.SET_GPS, numbVal[1:2])
-                elif cmd == 2:
-                    self.__board.sendCMD(0, MultiWii.RAW_IMU)
+                returnData = ""
+                numbVal = []
+                cmd = int(row[0])
+                for numb in row:
+                    numbVal.append(float(numb))
+                #numbVal = [list(map(int, x)) for x in row]
+                #cmd = numbVal[0]
+                dataLength = len(numbVal) - 1
+                if cmd >= 200 and cmd < 300:
+                    # Send a command to the flight controller.
+                    self.__board.sendCMD(dataLength, cmd, numbVal[1:dataLength])
+                elif cmd >= 100 and cmd < 200:
+                    returnData += str(cmd) + ";"
+                    # Request info from the flight conroller.
+                    #dataDic = self.__board.getData(cmd)
+                    dataDic = self.__board.rawIMU
+                    for key, value in dataDic.iteritems():
+                        returnData += str(value) + ";"
+                    returnData = returnData[0:len(returnData) - 1]
                 else:
-                    print("# Invalid data.")
+                    print("# Invalid command or data.")
             except Exception, error:
                 print("# Error reading data: ", error)
-
-    """
-    Get data from the multiwii board.
-    """
-    def getData(self):
-        pass
-
+            finally:
+                return returnData
 
     """
     Get revision of the RPi.
     """
-    def _getRpiRevision(self):
+    def _getRPiRev(self):
         # Extract board revision from cpuinfo file
         revision = "0000"
         try:
