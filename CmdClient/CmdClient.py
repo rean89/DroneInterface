@@ -4,31 +4,30 @@ drone = DroneConnection()
 
 print("### Drone test client ###")
 
-
-
 while True:
 
     if not drone.isConnected():
         print("# connect..")
-        drone.connect()
+        while not drone.isConnected():
+            drone.connect()
+
         print("# Enter '?' for help")
+
     userInput = input("# Command:\n")
+    userInput.lower()
 
     # Close client.
     if userInput == "exit":
         break
 
     # Raw input from the left and right control stick.
-    elif userInput[:6] == "RAW RC":
-        print("# Enter the raw values of the left & right control stick.")
-        lx = input("Lx: ")
-        ly = input("Ly: ")
-        rx = input("Rx: ")
-        ry = input("Ry: ")
-        drone.sendRawRC(lx, ly, rx, ry)
+    elif userInput == "raw":
+        print("# Enter raw data.")
+        data = input("Data: ")
+        drone.sendData(data)
 
     # Set throttle, yaw, roll and pitch
-    elif userInput[:2] == "RC":
+    elif userInput == "rc":
         print("# Enter values for throttle, yaw, roll & pitch.")
         throttle = input("Throttle: ")
         yaw = input("Yaw: ")
@@ -37,24 +36,25 @@ while True:
         drone.sendRC(throttle, yaw, roll, pitch)
 
     # Set GPS.
-    elif userInput[:3] == "GPS":
+    elif userInput == "gps":
         print("# Enter latitude & longitude of the new GPS position")
         latitude = input("Latitude: ")
         longitude = input("Longitude: ")
         drone.setGPS(latitude, longitude)
 
     # Get telemetry information.
-    elif userInput[:4] == "Tele":
+    elif userInput == "tele":
         drone.requestTelemetry()
 
     # Show help
-    elif userInput == "?":
+    elif userInput == "?" or userInput == "help":
         print("<cmd>,<value>,<value>,...")
         print("Commands | Values")
-        print("RAW RC   | Lx, Ly, Rx, Ry; L & R control stick.")
-        print("RC       | throttle, yaw, roll, pitch")
-        print("GPS      | latitude & longitude; Set a new GPS position.")
-        print("Tele     | Telemetry information.")
+        print("raw      | Enter raw data.")
+        print("rc       | throttle, yaw, roll, pitch")
+        print("gps      | latitude & longitude; Set a new GPS position.")
+        print("tele     | Telemetry information.")
+        print("connect  | Try to connect to the drone.")
         print("exit     | Close client.")
 
     # Invalid input
