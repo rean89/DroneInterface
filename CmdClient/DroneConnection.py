@@ -8,11 +8,48 @@ receive telemetry informations from the drone.
 """
 class DroneConnection:
 
+    # Message ids of the MultiWii serial portocol
+    __IDENT = 100
+    __STATUS = 101
+    __RAW_IMU = 102
+    __SERVO = 103
+    __MOTOR = 104
+    __RC = 105
+    __RAW_GPS = 106
+    __COMP_GPS = 107
+    __ATTITUDE = 108
+    __ALTITUDE = 109
+    __ANALOG = 110
+    __RC_TUNING = 111
+    __PID = 112
+    __BOX = 113
+    __MISC = 114
+    __MOTOR_PINS = 115
+    __BOXNAMES = 116
+    __PIDNAMES = 117
+    __WP = 118
+    __BOXIDS = 119
+    __RC_RAW_IMU = 121
+    __SET_RAW_RC = 200
+    __SET_RAW_GPS = 201
+    __SET_PID = 202
+    __SET_BOX = 203
+    __SET_RC_TUNING = 204
+    __ACC_CALIBRATION = 205
+    __MAG_CALIBRATION = 206
+    __SET_MISC = 207
+    __RESET_CONF = 208
+    __SET_WP = 209
+    __SWITCH_RC_SERIAL = 210
+    __IS_SERIAL = 211
+    __DEBUG = 254
+
+
     def __init__(self):
         # Connection state.
         self.connected = False
         # IP address and port of the drone server.
-        self.server_address = ('192.168.0.106', 8000)
+        self.server_address = ('192.168.0.109', 8000)
         # Create a socket for the connection.
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -28,7 +65,8 @@ class DroneConnection:
                 self.sock.connect(self.server_address)
                 self.connected = True
             except Exception as e:
-                print("Exception: ", e)
+                #print("Exception: ", e)
+                pass
 
 
     """
@@ -51,16 +89,17 @@ class DroneConnection:
 
 
     """
-    Set a new GPS position.
+    Set a GPS way point?.
     """
-    def sendGPS(self, latitude, longitude):
+    def sendWP(self, latitude, longitude):
         # Connected to the drone?
         if self.connected:
             # Create the command.
-            command = "1;" + str(latitude) + ";" + str(longitude)
+            cmd = (str(self.__SET_WP)
+                        + ";" + str(latitude) + ";" + str(longitude))
             try:
                 # Send the command.
-                self.sock.sendall(command.encode('utf-8'))
+                self.sock.sendall(cmd.encode('utf-8'))
             except Exception as e:
                 # Handle exceptions.
                 print("Exception:\n", e)
@@ -73,10 +112,11 @@ class DroneConnection:
         # Connected to the drone?
         if self.isConnected:
             # Create the data package.
-            command = "0;" + str(throttle) + ";" + str(yaw) + ";" + str(roll) + ";" + str(pitch)
+            cmd = (str(self.__SET_RAW_RC) + ";" + str(throttle) + ";"
+                        + str(yaw) + ";" + str(roll) + ";" + str(pitch))
             try:
                 # Send the command.
-                self.sock.sendall(command.encode('utf-8'))
+                self.sock.sendall(cmd.encode('utf-8'))
             except Exception as e:
                 # Handle exceptions.
                 print("Exception:\n", e)
@@ -85,18 +125,17 @@ class DroneConnection:
     """
     Request telemetry information of the drone.
     """
-    def requestTelemetry(self):
+    def recIMU(self):
         if self.isConnected:
             # Creat the command to request the telemetry information.
-            command = "2"
             try:
+                cmd = str(self.__RAW_IMU)
                 # Send the command.
-                self.sock.sendall(command.encode('utf-8'))
+                self.sock.sendall(cmd.encode('utf-8'))
                 # Wait for the telemetry information.
                 data = self.sock.recv(1024)
                 # Print the telemetry information.
-                teleInfo = data.decode('utf-8')
-                print(teleInfo)
+                return data.decode('utf-8')
             except Exception as e:
                 # Handle exceptions.
                 print("Exception:\n", e)

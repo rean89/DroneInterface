@@ -36,15 +36,15 @@ while True:
         drone.sendRC(throttle, yaw, roll, pitch)
 
     # Set GPS.
-    elif userInput == "gps":
+    elif userInput == "wp":
         print("# Enter latitude & longitude of the new GPS position")
         latitude = input("Latitude: ")
         longitude = input("Longitude: ")
         drone.setGPS(latitude, longitude)
 
     # Get telemetry information.
-    elif userInput == "tele":
-        drone.requestTelemetry()
+    elif userInput == "imu":
+        print(drone.recIMU())
 
     # Show help
     elif userInput == "?" or userInput == "help":
@@ -52,8 +52,8 @@ while True:
         print("Commands | Values")
         print("raw      | Enter raw data.")
         print("rc       | throttle, yaw, roll, pitch")
-        print("gps      | latitude & longitude; Set a new GPS position.")
-        print("tele     | Telemetry information.")
+        print("wp       | Set a new way point; latitude & longitude.")
+        print("imu      | Get the imu values.")
         print("connect  | Try to connect to the drone.")
         print("exit     | Close client.")
 
