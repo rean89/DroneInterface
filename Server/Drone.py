@@ -10,15 +10,21 @@ except ImportError:
 
 
 class Drone:
+                            
+    # Serial port address for older models then rpi 3b?
+    __rpiOldSerialPortAddress = "/dev/ttyAMA0"
 
-    __debugOutputLabels = [["RC", "Throttle", "Yaw", "Roll", "Pitch"],
-                            ["GPS", "Latitude", "Longitude"],
-                            ["Tele"]]
+    # Serial port address for the rpi 3b
+    __rpi3BSerialPortAddress = "/dev/ttyS0"
+
     def __init__(self):
-        self.__debug = True
-        self.__rpi3SerialPortAddress = "/dev/ttyS0"
-        self.__board = MultiWii(self.__rpi3SerialPortAddress)
 
+        self.__debug = True
+        revisionId = self._getRpiRevision()
+        if revisionId == "a02082" or revisionId == "a22082":
+            self.__board = MultiWii(self.__rpi3BSerialPortAddress)
+        else:
+            self.__board = MultiWii(self.rpiOldSerialPortAddress)
 
     """
     Send data to the multiwii board.
@@ -47,4 +53,20 @@ class Drone:
     def getData(self):
         pass
 
-    
+
+    """
+    Get revision of the RPi.
+    """
+    def _getRpiRevision(self):
+        # Extract board revision from cpuinfo file
+        revision = "0000"
+        try:
+            f = open('/proc/cpuinfo', 'r')
+            for line in f:
+                if line[:8] == 'Revision':
+                    revision = line[11:len(line) - 1]
+        except:
+            revision = "0000"
+        finally:
+            f.close()
+            return revision
