@@ -1,4 +1,5 @@
-from pymultiwii import MultiWii
+#from pymultiwii import MultiWii
+from MultiWiiSerialProtocol import MSP
 
 import csv
 try:
@@ -24,43 +25,47 @@ class Drone:
         revId = self._getRPiRev()
         # Check if RPi 3b or another revision.
         if revId == "a02082" or revId == "a22082":
-            self.__board = MultiWii(self.__rpi3BSerialPortAddress)
+            #self.__board = MultiWii(self.__rpi3BSerialPortAddress)
+            self.msp = MSP(self.__rpi3BSerialPortAddress)
         else:
-            self.__board = MultiWii(self.__rpiOldSerialPortAddress)
+            #self.__board = MultiWii(self.__rpiOldSerialPortAddress)
+            self.msp = MSP(self.__rpiOldSerialPortAddress)
+
 
     """
     Send data to the multiwii board.
     """
-    def sendData(self, rawData):
+    def sendData(self, rcData):
 
-        reader = csv.reader(StringIO(rawData.decode('utf-8')), delimiter=";")
+        reader = csv.reader(StringIO(rcData.decode('utf-8')), delimiter=";")
         for row in reader:
             try:
-                returnData = ""
+                csvData = ""
                 numbVal = []
                 cmd = int(row[0])
                 for numb in row:
                     numbVal.append(float(numb))
-                #numbVal = [list(map(int, x)) for x in row]
-                #cmd = numbVal[0]
-                dataLength = len(numbVal) - 1
                 if cmd >= 200 and cmd < 300:
                     # Send a command to the flight controller.
-                    self.__board.sendCMD(dataLength, cmd, numbVal[1:dataLength])
+                    print("Send data to fc...")
+                    self.msp.sendData(cmd, numbVal[1:len(numbVal)])
                 elif cmd >= 100 and cmd < 200:
-                    returnData += str(cmd) + ";"
                     # Request info from the flight conroller.
-                    #dataDic = self.__board.getData(cmd)
-                    dataDic = self.__board.rawIMU
-                    for key, value in dataDic.iteritems():
-                        returnData += str(value) + ";"
-                    returnData = returnData[0:len(returnData) - 1]
+                    droneData = self.msp.getData(cmd)
+
+                    # Convert to csv format.
+                    csvData += str(cmd) + ";"
+                    for value in droneData:
+                        csvData += str(float(value)) + ";"
+                    csvData = csvData[0:len(csvData) - 1]
                 else:
                     print("# Invalid command or data.")
             except Exception, error:
+                return "0"
                 print("# Error reading data: ", error)
             finally:
-                return returnData
+                return csvData
+
 
     """
     Get revision of the RPi.

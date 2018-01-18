@@ -80,10 +80,17 @@ class DroneServer:
             try:
                 # Try to get data from the rc.
                 data = self.__rcConnection.recv(1024)
-                return data
+                print("data: ", data, " length: ", len(data))
+                if len(data) == 0:
+                    print("# RC disconnected.")
+                    self.stop()
+                return str(data)
 
             except Exception, error:
-                print("# Error getting data from rc: ", str(error))
+                #print("# Error getting data from rc: ", str(error))
+                print("# RC disconnected.")
+                self.stop()
+                return ""
 
 
     """
@@ -99,6 +106,7 @@ class DroneServer:
 
             except Exception, error:
                 print("# Error searching for rc: ", str(error))
+                self.stop()
 
 
     """

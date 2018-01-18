@@ -16,17 +16,15 @@ while True:
 
     if server.isRcConnected():
         # Wait for data from rc and send it to the flight controller.
-        data = server.getData()
-        returnData = drone.sendData(data)
+        rcData = server.getData()
+        print("# RC data: ", str(rcData))
 
-        rcData = str(data.decode('utf-8'))
-        print("# RC data: ", rcData)
+        droneData = str(drone.sendData(rcData))
+        print("# Drone data: ", str(droneData.decode('utf-8')))
 
-        if not returnData == "":
-            droneData = str(returnData.decode('utf-8'))
-            print("# Drone data: ", droneData)
+        if not droneData == "":
             # Send recevied data from the drone to the rc.
-            server.sendData(returnData)
+            server.sendData(droneData)
 
 
 
