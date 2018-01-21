@@ -165,54 +165,50 @@ sudo sh -c "sed -i.bak \"s/^exit 0/echo Start drone interface\npython $sedPath\/
 # Config wlan interface #
 # # # # # # # # # # # # #
 
-sudo apt-get install dnsmasq hostapd
+# sudo apt-get install dnsmasq
+# sudo apt-get install hostapd
 
-echo "Stop dns and host."
-sudo systemctl stop dnsmasq
-sudo systemctl stop hostapd
+# echo "Stop dns and host."
+# sudo systemctl stop dnsmasq
+# sudo systemctl stop hostapd
 
-echo "Edit wlan settings."
-wlanSetting=$'interface wlan0
-static ip_address=192.168.0.1/24'
-sudo sh -c "echo \"$wlanSetting\" >> /etc/dhcpcd.conf"
+# echo "Edit wlan settings."
+# wlanSetting=$'interface wlan0
+# static ip_address=192.168.10.1/24'
+# sudo sh -c "echo \"$wlanSetting\" >> /etc/dhcpcd.conf"
 
-echo "Restart dhcp service."
-#sudo service dhcpcd restart
+# echo "Restart dhcp service."
+# sudo service dhcpcd restart
 
-echo "Edit dhcp settings."
-dhcpSettings=$'interface=wlan0
-dhcp-range=192.168.0.2,192.168.0.20,255.255.255.0,24h'
-sudo sh -c "echo \"$dhcpSettings\" >> /etc/dnsmasq.conf"
+# echo "Edit dhcp settings."
+# dhcpSettings=$'interface=wlan0
+# dhcp-range=192.168.10.2,192.168.10.20,255.255.255.0,24h'
+# sudo sh -c "echo \"$dhcpSettings\" >> /etc/dnsmasq.conf"
 
-echo "Edit hostapd."
-hostapdSettings=$'interface=wlan0
-driver=nl80211
-ssid=FlyPi
-hw_mode=g
-channel=7
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_passphrase=HHNSEB
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP'
-sudo sh -c "echo \"$hostapdSettings\" >> /etc/hostapd/hostapd.conf"
+# echo "Edit hostapd."
+# hostapdSettings=$'interface=wlan0
+# driver=nl80211
+# ssid=FlyPi
+# hw_mode=g
+# channel=7
+# wmm_enabled=0
+# macaddr_acl=0
+# auth_algs=1
+# ignore_broadcast_ssid=0
+# wpa=2
+# wpa_passphrase=HHNSEB-Drone
+# wpa_key_mgmt=WPA-PSK
+# wpa_pairwise=TKIP
+# rsn_pairwise=CCMP'
+# sudo sh -c "echo \"$hostapdSettings\" >> /etc/hostapd/hostapd.conf"
 
-echo "Edit daemon config"
-daemonSettings=$'DAEMON_CONF="/etc/hostapd/hostapd.conf"'
-sudo sh -c "echo \"$daemonSettings\" >> /etc/default/hostapd"
+# echo "Edit daemon config"
+# daemonSettings=$'DAEMON_CONF="/etc/hostapd/hostapd.conf"'
+# sudo sh -c "echo \"$daemonSettings\" >> /etc/default/hostapd"
 
-echo "Start dns and hostapd service."
-sudo service hostapd start
-sudo service dnsmasq start
-
-# Enable packet forwarding
-#forwardingSetting="net.ipv4.ip_forward=1"
-#forwardingLine=$(grep "net.ipv4.ip_forward" /etc/sysctl.conf)
-#sudo sh -c "sed -i.bak "s/$forwardingLine/$forwardingSetting/g" /etc/sysctl.conf"
+# echo "Start dns and hostapd service."
+# sudo service hostapd start
+# sudo service dnsmasq start
 
 # Reboot the pi after the setup
 sudo reboot

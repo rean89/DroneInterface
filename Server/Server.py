@@ -1,4 +1,5 @@
 import os
+import time
 import socket
 if os.name != "nt":
     import fcntl
@@ -10,6 +11,8 @@ Handles the connection to the remote control.
 class DroneServer:
 
     def __init__(self):
+
+        self.__wlanOnly = True
 
         # Connection to the remote control.
         self.__rcConnection = []
@@ -40,9 +43,22 @@ class DroneServer:
     Start the server.
     """
     def start(self):
+        if self.__wlanOnly:
+            print("# Wait for wlan interface..")
+            while self.__wlanOnly:
+                try:
+                    self.__ipAddress = self._getInterfaceIP("wlan0")
+                    self.__serverAddress = (self.__ipAddress, self.__port)
+                    self.__wlanOnly = False
+                except Exception as e:
+                    print("# Wlan not up. ", str(e))
+                    time.sleep(2)
+
+        print("# Bind socket.")
         self.__socket.bind(self.__serverAddress)
         self.__socket.listen(self.__maxClients)
         print("# Server started.")
+        print("# IP: ", str(self.__ipAddress), " Port: ", str(self.__port))
 
 
     """

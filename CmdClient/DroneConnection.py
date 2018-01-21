@@ -48,7 +48,7 @@ class DroneConnection:
         # Connection state.
         self.connected = False
         # IP address and port of the drone server.
-        self.server_address = ('192.168.0.105', 8000)
+        self.server_address = ('192.168.10.1', 8000)
         # Create a socket for the connection.
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
