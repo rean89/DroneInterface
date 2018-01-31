@@ -15,7 +15,7 @@ class MSP:
     ATTITUDE = 108
     ALTITUDE = 109
     ANALOG = 110
-    RC_TUNING = 111
+    TUNING = 111
     # PID = 112
     # BOX = 113
     MISC = 114
@@ -33,9 +33,9 @@ class MSP:
     SET_GPS = 201
     # SET_PID = 202
     # SET_BOX = 203
-    SET_RC_TUNING = 204
-    ACC_CALIB = 205
-    MAG_CALIB = 206
+    SET_TUNING = 204
+    CALIB_ACC = 205
+    CALIB_MAG = 206
     SET_MISC = 207
     RESET_CONFIG = 208
     SET_WP = 209
@@ -56,38 +56,45 @@ class MSP:
         self.preamblePkg = ['$', 'M', '<']
         self.preamblePkgStruct = '3c2B'
         self.cmdStructDic = dict()
-        self.cmdStructDic['100'] = '3BI'
-        self.cmdStructDic['101'] = '3HIB'
-        self.cmdStructDic['102'] = '9h'
-        self.cmdStructDic['103'] = '8H'
-        self.cmdStructDic['104'] = '8H'
-        self.cmdStructDic['105'] = '8H'
-        self.cmdStructDic['106'] = '2B2I3H'
-        self.cmdStructDic['107'] = '2HB'
-        self.cmdStructDic['108'] = '3h'
-        self.cmdStructDic['109'] = 'ih'
-        self.cmdStructDic['110'] = 'B3H'
-        self.cmdStructDic['111'] = '7B'
-        # self.cmdStructDic['112'] = '30B'
-        self.cmdStructDic['114'] = '6HIH4B'
-        self.cmdStructDic['115'] = '8B'
+        self.cmdStructDic[str(self.IDENT)] = '3BI'
+        self.cmdStructDic[str(self.STATUS)] = '3HIB'
+        self.cmdStructDic[str(self.IMU)] = '9h'
+        self.cmdStructDic[str(self.SERVO)] = '8H'
+        self.cmdStructDic[str(self.MOTOR)] = '8H'
+        self.cmdStructDic[str(self.RC)] = '8H'
+        self.cmdStructDic[str(self.GPS)] = '2B2I3H'
+        self.cmdStructDic[str(self.COMP_GPS)] = '2HB'
+        self.cmdStructDic[str(self.ATTITUDE)] = '3h'
+        self.cmdStructDic[str(self.ALTITUDE)] = 'ih'
+        self.cmdStructDic[str(self.ANALOG)] = 'B3H'
+        self.cmdStructDic[str(self.TUNING)] = '7B'
+        # self.cmdStructDic[str(self.PID)] = '30B'
+        # self.cmdStructDic[str(self.BOX)] = ''
+        self.cmdStructDic[str(self.MISC)] = '6HIH4B'
+        self.cmdStructDic[str(self.MOTOR_PINS)] = '8B'
         # self.cmdStructDic['116'] = 's'
         # self.cmdStructDic['117'] = 's'
-        self.cmdStructDic['118'] = '2B3I3HB'
-        self.cmdStructDic['121'] = '5BH'
-        self.cmdStructDic['122'] = '2B5HB2HBHB'
-        self.cmdStructDic['200'] = '8H'
-        self.cmdStructDic['201'] = '2B2I2H'
-        self.cmdStructDic['204'] = '7B'
-        self.cmdStructDic['205'] = ''
-        self.cmdStructDic['206'] = ''
-        self.cmdStructDic['207'] = '6HIH4B'
-        self.cmdStructDic['208'] = ''
-        self.cmdStructDic['209'] = 'B3I2HB'
-        self.cmdStructDic['210'] = 'B'
-        self.cmdStructDic['211'] = 'H'
-        self.cmdStructDic['214'] = '8H'
-        self.cmdStructDic['215'] = '2B5HB2HBHB'
+        self.cmdStructDic[str(self.WP)] = '2B3I3HB'
+        # self.cmdStructDic['119'] = ''
+        # self.cmdStructDic['120'] = ''
+        self.cmdStructDic[str(self.NAV_STATUS)] = '5BH'
+        self.cmdStructDic[str(self.NAV_CONFIG)] = '2B5HB2HBHB'
+        self.cmdStructDic[str(self.SET_RC)] = '8H'
+        self.cmdStructDic[str(self.SET_GPS)] = '2B2I2H'
+        # self.cmdStructDic['203'] = ''
+        # self.cmdStructDic['204'] = ''
+        self.cmdStructDic[str(self.SET_TUNING)] = '7B'
+        self.cmdStructDic[str(self.CALIB_ACC)] = ''
+        self.cmdStructDic[str(self.CALIB_MAG)] = ''
+        self.cmdStructDic[str(self.SET_MISC)] = '6HIH4B'
+        self.cmdStructDic[str(self.RESET_CONFIG)] = ''
+        self.cmdStructDic[str(self.SET_WP)] = 'B3I2HB'
+        self.cmdStructDic[str(self.SELECT_SETTING)] = 'B'
+        self.cmdStructDic[str(self.SET_HEAD)] = 'H'
+        # self.cmdStructDic['212'] = ''
+        self.cmdStructDic[str(self.SET_MOTOR)] = '8H'
+        self.cmdStructDic[str(self.SET_NAV_CONFIG)] = '2B5HB2HBHB'
+
 
         self.serialPort = serial.Serial()
         self.serialPort.port = serialAddr
@@ -99,7 +106,7 @@ class MSP:
         self.serialPort.xonxoff = False
         self.serialPort.rtscts = False
         self.serialPort.dsrdtr = False
-        # self.serialPort.writeTimeout = 2
+
         try:
             self.serialPort.open()
         except Exception, error:
@@ -107,10 +114,9 @@ class MSP:
 
     def sendData(self, cmd, data):
         crc = self.getCRC(cmd, data)
-        if cmd >= 100 and cmd < 200:
+        if cmd >= IDENT and cmd < SET_RC:
             dataStruct = ""
-            dataLength = 0
-            dataPackage = self.preamblePkg + [dataLength, cmd, crc]
+            dataPackage = self.preamblePkg + [0, cmd, crc]
         else:
             dataStruct = self.cmdStructDic[str(cmd)]
             dataLength = struct.calcsize(self.cmdStructDic[str(cmd)])
@@ -145,16 +151,13 @@ class MSP:
             while True:
                 data = self.serialPort.read()
                 if data == self.preamblePkg[0]:
-                    # Read the rest of the preamble.
+                    # Read the rest of the preamble + direction sign.
                     self.serialPort.read(len(self.preamblePkg) - 1)
                     break
             dataLength = struct.unpack('<B', self.serialPort.read())[0]
-            self.serialPort.read()
-            data = self.serialPort.read(dataLength)
-            unpackedData = struct.unpack('<' + self.cmdStructDic[str(cmd)], data)
-            print("Length: ", dataLength)
-            print("Packed: ", data)
-            print("Unpacked: ", unpackedData)
+            data = self.serialPort.read(dataLength + 2)
+            unpackedData = struct.unpack('<B' + self.cmdStructDic[str(cmd)] + 'B', data)
+
         except Exception, error:
             # Something went wrong.
             print("# Error getting data from fc: ", error)
@@ -162,11 +165,11 @@ class MSP:
             # Clean up.
             self.serialPort.flushInput()
             self.serialPort.flushOutput()
-            return unpackedData
+            # Remove checksum from data pkg.
+            return unpackedData[0:len(unpackedData) - 2]
 
     def getCRC(self, cmd, data):
-        pkg = ""
-        if cmd >= 100 and cmd < 200:
+        if cmd >= IDENT and cmd < RC:
             pkg = struct.pack('<BB', *[cmd, 0])
         else:
             dataLength = struct.calcsize(self.cmdStructDic[str(cmd)])

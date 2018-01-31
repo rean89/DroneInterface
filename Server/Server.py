@@ -11,9 +11,10 @@ Handles the connection to the remote control.
 class DroneServer:
 
     # Time to wait between the test, if the wlan0 interface is up.
-    self.__IF_TIMEOUT = 1
+    __IF_TIMEOUT = 1
 
-    self.__WLAN_IF_NAME = "wlan0"
+    # Wlan interface name.
+    __WLAN_IF_NAME = "wlan0"
 
     def __init__(self):
 
@@ -50,12 +51,12 @@ class DroneServer:
     """
     def start(self):
         if self.__wlanOnly:
-            print("# Wait for wlan interface..")
-            while self.__wlanOnly:
+            print "# Wait for if: " + self.__WLAN_IF_NAME
+            while True:
                 try:
                     self.__ipAddress = self._getInterfaceIP(stlf.__WLAN_IF_NAME)
                     self.__serverAddress = (self.__ipAddress, self.__port)
-                    self.__wlanOnly = False
+                    break
                 except Exception as e:
                     time.sleep(self.__IF_TIMEOUT)
 

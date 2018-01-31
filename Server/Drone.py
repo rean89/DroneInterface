@@ -27,7 +27,6 @@ class Drone:
     __debug = False
 
     def __init__(self):
-
         revId = self._getRPiRev()
 
         # Check if 3. generation RPi.
@@ -48,25 +47,23 @@ class Drone:
                 csvData = ""
                 numbVal = []
                 cmd = int(row[0])
+
                 for numb in row:
                     numbVal.append(float(numb))
-                if cmd >= 200 and cmd < 300:
+
+                if cmd >= MSP.SET_RC:
                     # Send a command to the flight controller.
-                    print("Send data to fc...")
                     self.msp.sendData(cmd, numbVal[1:len(numbVal)])
-                elif cmd >= 100 and cmd < 200:
+                elif cmd >= MSP.IDENT:
                     # Request info from the flight conroller.
                     droneData = self.msp.getData(cmd)
 
                     # Convert to csv format.
-                    csvData += str(cmd) + ";"
                     for value in droneData:
                         csvData += str(float(value)) + ";"
                     csvData = csvData[0:len(csvData) - 1]
-                else:
-                    print("# Invalid command or data.")
             except Exception, error:
-                return "0"
+                return ""
                 print("# Error reading data: ", error)
             finally:
                 return csvData
