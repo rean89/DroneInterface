@@ -10,6 +10,11 @@ Handles the connection to the remote control.
 """
 class DroneServer:
 
+    # Time to wait between the test, if the wlan0 interface is up.
+    self.__IF_TIMEOUT = 1
+
+    self.__WLAN_IF_NAME = "wlan0"
+
     def __init__(self):
 
         self.__wlanOnly = True
@@ -39,6 +44,7 @@ class DroneServer:
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
+
     """
     Start the server.
     """
@@ -47,14 +53,12 @@ class DroneServer:
             print("# Wait for wlan interface..")
             while self.__wlanOnly:
                 try:
-                    self.__ipAddress = self._getInterfaceIP("wlan0")
+                    self.__ipAddress = self._getInterfaceIP(stlf.__WLAN_IF_NAME)
                     self.__serverAddress = (self.__ipAddress, self.__port)
                     self.__wlanOnly = False
                 except Exception as e:
-                    print("# Wlan not up. ", str(e))
-                    time.sleep(2)
+                    time.sleep(self.__IF_TIMEOUT)
 
-        print("# Bind socket.")
         self.__socket.bind(self.__serverAddress)
         self.__socket.listen(self.__maxClients)
         print("# Server started.")
@@ -116,10 +120,11 @@ class DroneServer:
         # Check rc connection state.
         if not self.__rcConnected:
             try:
-                # Wait for a remote control to connect.
+                print("# Waiting for rc to connect..")
                 self.__rcConnection, self.__rcAddress = self.__socket.accept()
                 self.__rcConnected = True
 
+                print("# Connected to rc.")
             except Exception, error:
                 print("# Error searching for rc: ", str(error))
                 self.stop()
