@@ -12,25 +12,30 @@ except ImportError:
 
 class Drone:
 
-    # Serial port address for older models then rpi 3b?
+    # RPi revision id's.
+    __RPI_3B_UK_ID = "a02082"
+    __RPI_3B_JAP_ID = "a32082"
+    __RPI_3B_EMB_ID = "a22082"
+    __RPI_ZERO_W_ID = "9000c1"
+
+    # Serial address for RPi's older then 3. generation.
     __rpiOldSerialPortAddress = "/dev/ttyAMA0"
 
-    # Serial port address for the rpi 3b
+    # Serial address for 3. generation RPi's.
     __rpi3BSerialPortAddress = "/dev/ttyS0"
+
+    __debug = False
 
     def __init__(self):
 
-        self.__debug = True
-
         revId = self._getRPiRev()
-        # Check if RPi 3b or another revision.
-        if revId == "a02082" or revId == "a22082":
-            #self.__board = MultiWii(self.__rpi3BSerialPortAddress)
+
+        # Check if 3. generation RPi.
+        if (revId == self.__RPI_3B_UK_ID or revId == self.__RPI_3B_JAP_ID
+            or revId == self.__RPI_3B_EMB_ID or revId == self.__RPI_ZERO_W_ID):
             self.msp = MSP(self.__rpi3BSerialPortAddress)
         else:
-            #self.__board = MultiWii(self.__rpiOldSerialPortAddress)
             self.msp = MSP(self.__rpiOldSerialPortAddress)
-
 
     """
     Send data to the multiwii board.
