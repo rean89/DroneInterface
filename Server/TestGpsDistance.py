@@ -7,7 +7,5 @@ myTownHall = GpsCoord(49.135941, 8.545129)
 
 comparer = GpsComparer()
 
-"""
-Ca. 340m
-"""
+# Ca. 340m
 print comparer.getDistance(myPosition, myTownHall)

@@ -1,6 +1,3 @@
-#from pymultiwii import MultiWii
-from MultiWiiSerialProtocol import MSP
-
 import csv
 try:
     # For Python 2.x
@@ -14,7 +11,7 @@ class CsvConverter:
 
 
     def __init__(self):
-
+        pass
 
     """
     Send data to the multiwii board.
