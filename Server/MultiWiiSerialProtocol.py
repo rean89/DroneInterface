@@ -166,7 +166,7 @@ class MSP:
             self.serialPort.flushInput()
             self.serialPort.flushOutput()
             # Remove checksum from data pkg.
-            return unpackedData[0:len(unpackedData) - 2]
+            return unpackedData[1:len(unpackedData) - 2]
 
     def getCRC(self, cmd, data):
         if cmd >= IDENT and cmd < RC:
