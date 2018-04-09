@@ -31,7 +31,7 @@ class CsvConverter:
             finally:
                 return numbVal
 
-    def toCSV(self, data):
+    def toString(self, data):
         for value in droneData:
             csvData += str(float(value)) + ";"
         csvData = csvData[0:len(csvData) - 1]
