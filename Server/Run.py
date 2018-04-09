@@ -1,13 +1,18 @@
-from Server import DroneServer
+from GpsChecker import GpsComparer
+from GpsDecimalDegree import GpsCoord
 from Drone import Drone
 
 drone = Drone()
+comparer = GpsComparer()
+
+# Tolerance in meters.
+tolerance = 10
 
 # Main loop
 while True:
 
-        gpsData = str(drone.reqRawGPS())
+        dronePos = drone.reqGPS()
+        targetPos = GpsCoord(0.0, 0.0)
 
-        if not droneData == "":
-            # Check if in range.
-            headingData = str(drone.reqCompGPS())
+        if gpsData is not None:# and comparer.getDistance(targetPos, dronePos) < tolerance:
+            pass
