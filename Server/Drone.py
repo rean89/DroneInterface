@@ -29,11 +29,16 @@ class Drone:
         else:
             self.msp = MSP(self.__rpiOldSerialPortAddress)
 
-    def reqRawGPS(self):
+    def reqGPS(self):
         data = self.msp.getData(self.msp.GPS)
         GpsCoord
         if len(data) > 0:
             return GpsCoord(data[2] * self.__GPS_SCALE, data[3] * self.__GPS_SCALE)
+
+    def reqRawAttitude(self):
+        data = self.msp.getData(self.msp.ATTITUDE)
+        if len(data) > 0:
+            return data
 
 
     """

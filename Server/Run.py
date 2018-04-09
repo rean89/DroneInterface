@@ -11,8 +11,8 @@ tolerance = 10
 # Main loop
 while True:
 
-        dronePos = drone.reqRawGPS()
-        targetPos = GpsCoord()
+        dronePos = drone.reqGPS()
+        targetPos = GpsCoord(0.0, 0.0)
 
-        if gpsData is not None:# and comparer.getDistance() < tolerance:
+        if gpsData is not None:# and comparer.getDistance(targetPos, dronePos) < tolerance:
             pass
