@@ -36,37 +36,11 @@ class Drone:
         else:
             self.msp = MSP(self.__rpiOldSerialPortAddress)
 
-    """
-    Send data to the multiwii board.
-    """
-    def sendData(self, rcData):
+    def reqRawGPS(self):
+        return self.msp.getData(self.msp.COMP_GPS)
 
-        reader = csv.reader(StringIO(rcData.decode('utf-8')), delimiter=";")
-        for row in reader:
-            try:
-                csvData = ""
-                numbVal = []
-                cmd = int(row[0])
-
-                for numb in row:
-                    numbVal.append(float(numb))
-
-                if cmd >= MSP.SET_RC:
-                    # Send a command to the flight controller.
-                    self.msp.sendData(cmd, numbVal[1:len(numbVal)])
-                elif cmd >= MSP.IDENT:
-                    # Request info from the flight conroller.
-                    droneData = self.msp.getData(cmd)
-
-                    # Convert to csv format.
-                    for value in droneData:
-                        csvData += str(float(value)) + ";"
-                    csvData = csvData[0:len(csvData) - 1]
-            except Exception, error:
-                return ""
-                print("# Error reading data: ", error)
-            finally:
-                return csvData
+    def reqCompGPS(self):
+        return self.msp.getData(self.msp.GPS)
 
 
     """
