@@ -1,0 +1,19 @@
+{
+  "coordinates": [
+    {
+      "sequence": 1,
+      "longitude": 22.34,
+      "latitude": 25.23
+    },
+    {
+      "sequence": 3,
+      "longitude": 21.34,
+      "latitude": 35.23
+    },
+    {
+      "sequence": 2,
+      "longitude": 32.34,
+      "latitude": 75.23
+    }
+  ]
+}
