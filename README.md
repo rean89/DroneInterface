@@ -65,3 +65,39 @@ The Raspberry Pi reboots after the installation and provides a wireless network.
 SSID: FlyPi
 Password: HHNSEB
 ```
+
+#### Fly-over mode
+
+If you want the Drone to fly over points in the world map, then you need provide a JSON file with the coordinates of the points the Drone should cross. If the "coordinates-objects" have a property "sequence", then the Drone will fly first to the coordinates-object with the sequence number 1.
+
+##### Example
+
+```json
+{
+  "coordinates": [
+    {
+      "sequence": 1,
+      "longitude": 22.34,
+      "latitude": 25.23
+    },
+    {
+      "sequence": 3,
+      "longitude": 21.34,
+      "latitude": 35.23
+    },
+    {
+      "sequence": 2,
+      "longitude": 32.34,
+      "latitude": 75.23
+    }
+  ]
+}
+```
+
+will be flown in the sequence:
+
+```bash
+1 -> 2 -> 3
+```
+
+at every point the drone takes a picture and stores it, with modified [exif](https://en.wikipedia.org/wiki/Exif) information, in the folder "DroneInterface/Files/Images/Out/"

@@ -44,6 +44,7 @@ def addMetaData(image):
     mypos = GpsCoord(49.133525, 8.548061)
     exif_dict["GPS"] = parseGpsData(
         mypos.getLat(), mypos.getLon(), mypos.getAlt())
+    exif_dict["0th"] = setDirection(exif_dict["0th"])
     # set heading to Photo
     exif_bytes = piexif.dump(exif_dict)
     # old
@@ -71,6 +72,14 @@ def parseGpsData(lat, lng, altitude):
         piexif.GPSIFD.GPSLongitude: exiv_lng,
         piexif.GPSIFD.GPSDateStamp: getDateStamp(),
     }
+
+
+def setDirection(ifdData):
+    if ifdData.has_key(piexif.ImageIFD.Orientation):
+        ifdData[piexif.ImageIFD.Orientation] = '0x66'
+    else:
+        ifdData.update({piexif.ImageIFD.Orientation: '0x66'})
+    return ifdData
 
 
 def getDateStamp():
