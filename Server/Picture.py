@@ -5,8 +5,9 @@ from pprint import pprint
 import time
 import datetime
 from GpsDecimalDegree import GpsCoord
+import RPi.GPIO as GPIO           # import RPi.GPIO module
 
-picturePin = 0
+picturePin = 17  # BCM pin
 
 
 def to_deg(value, loc):
@@ -40,15 +41,15 @@ def change_to_rational(number):
 
 def addMetaData(image):
     exif_dict = piexif.load(image.info["exif"])
-    # only until we get data from Drone
-    mypos = GpsCoord(49.133525, 8.548061)
+    # only until we get data from Drone. Thats Heilbronn
+    mypos = GpsCoord(49.1426929, 9.210879)
     exif_dict["GPS"] = parseGpsData(
         mypos.getLat(), mypos.getLon(), mypos.getAlt())
-    exif_dict["0th"] = setDirection(exif_dict["0th"])
-    # set heading to Photo
+    # set direction into description, because no proper tag was found.
+    # is later req.heading()
+    exif_dict["0th"].update({piexif.ImageIFD.ImageDescription: '666:)'})
+    # dump and save file in dir.
     exif_bytes = piexif.dump(exif_dict)
-    # old
-    #piexif.insert(exif_bytes, fileURI)
     saveUri = 'Files/Images/Out/out.jpg'
     image.save(saveUri, exif=exif_bytes)
 
@@ -74,14 +75,6 @@ def parseGpsData(lat, lng, altitude):
     }
 
 
-def setDirection(ifdData):
-    if ifdData.has_key(piexif.ImageIFD.Orientation):
-        ifdData[piexif.ImageIFD.Orientation] = '0x66'
-    else:
-        ifdData.update({piexif.ImageIFD.Orientation: '0x66'})
-    return ifdData
-
-
 def getDateStamp():
     timestamp = time.time()
     print timestamp
@@ -91,11 +84,18 @@ def getDateStamp():
     return st
 
 
+def setPicturePin():
+    GPIO.setmode(GPIO.BCM)            # choose BCM or BOARD
+    GPIO.setup(picturePin, GPIO.OUT)  # set a port/pin as an output
+    GPIO.output(picturePin, 1)       # set port/pin value to 1/GPIO.HIGH/True
+    GPIO.output(picturePin, 0)       # set port/pin value to 0/GPIO.LOW/False
+
+
 def takePhoto():
-    picturePin = 1
+    setPicturePin()
     # wait for file
     try:
-      # not used yet
+        # not used yet
         image = Image.open('Files/Images/ExampleNiagaraFalls.JPG')
         addMetaData(image)
     except Exception as err:
